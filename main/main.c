@@ -19,10 +19,15 @@
 
 static const char *TAGM = "MQTT_EXAMPLE";
 
-/** @brief HUB IOT connection string */ 
-#define IOTHUB_NAME     "iiot-manutencao-preditiva"
-#define IOTHUB_DEVID    "mqtt-device-01"
-#define IOTHUB_KEY      "SharedAccessSignature sr=iiot-manutencao-preditiva.azure-devices.net%2Fdevices%2Fmqtt-device-01&sig=tmSjkW48mwkiiz3IJ0YNcaGvzT9BtnT3vTkrbUhrkr8%3D&se=1674592121"
+#define WIFI_SSID       ""
+#define WIFI_PASSWORD   ""
+
+/** @brief IoT HUB name     */ 
+#define IOTHUB_NAME     "iot-hub-name"
+/** @brief your device id   */ 
+#define IOTHUB_DEVID    "iot-device"
+/** @brief entire SaS Token including SharedAccessSignature sr= ... */ 
+#define IOTHUB_KEY      "sas-token"
 
 esp_mqtt_client_handle_t client;
 
@@ -43,8 +48,8 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
     switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAGM, "MQTT_EVENT_CONNECTED");
-            msg_id = esp_mqtt_client_publish(client, "devices/" IOTHUB_DEVID "/messages/events/", "data_3", 0, 1, 1);
-            // ESP_LOGI(TAGM, "sent publish successful, msg_id=%d", msg_id);
+            msg_id = esp_mqtt_client_publish(client, "devices/" IOTHUB_DEVID "/messages/events/", "hello_world", 0, 1, 1);
+            ESP_LOGI(TAGM, "sent publish successful, msg_id=%d", msg_id);
 
             break;
         case MQTT_EVENT_DISCONNECTED:
@@ -52,9 +57,9 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
             break;
 
         case MQTT_EVENT_SUBSCRIBED:
-            // ESP_LOGI(TAGM, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-            // msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
-            // ESP_LOGI(TAGM, "sent publish successful, msg_id=%d", msg_id);
+            ESP_LOGI(TAGM, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+            msg_id = esp_mqtt_client_publish(client, "/topic/qos0", "data", 0, 0, 0);
+            ESP_LOGI(TAGM, "sent publish successful, msg_id=%d", msg_id);
             break;
         case MQTT_EVENT_UNSUBSCRIBED:
             ESP_LOGI(TAGM, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
@@ -79,8 +84,6 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
             break;
         default:
             ESP_LOGI(TAGM, "Other event id:%d", event->event_id);
-            
-            
             break;
     }
     return ESP_OK;
@@ -97,14 +100,12 @@ static void mqtt_app_start(void)
     const char* username = IOTHUB_NAME".azure-devices.net/"IOTHUB_DEVID"/?api-version=2021-04-12";
     ESP_LOGD(TAGM, "mqtt username: %s", username);
     esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = "mqtt://iiot-manutencao-preditiva.azure-devices.net",
+        .uri = "mqtts://"IOTHUB_NAME".azure-devices.net",
         .port=8883,
         .username = username,
         .client_id = IOTHUB_DEVID,
         .password = IOTHUB_KEY,
         .keepalive = 120,
-        .use_secure_element = true,
-    
     };
 
     client = esp_mqtt_client_init(&mqtt_cfg);
@@ -122,15 +123,12 @@ void app_main(void)
         ESP_LOGE("main", "-> NVS ERASED");
     }
     ESP_ERROR_CHECK(ret);
-
-    // wifi_connection_t conn = {"TP-Link", "kwe12345" };
-    wifi_connection_t conn = {"brisa-2816643", "9oqgl1e0" };
     
+    wifi_connection_t conn = {WIFI_SSID, WIFI_PASSWORD };
     wifi_register_connection(conn);    
 
+    /// start WiFi station
     wifi_init_sta();
-    mqtt_app_start();
-
-
-    
+    /// Start mqtt
+    mqtt_app_start(); 
 }

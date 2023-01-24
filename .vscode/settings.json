@@ -4,5 +4,6 @@
         "wifi.h": "c"
     },
     "idf.flashType": "UART",
-    "idf.portWin": "COM3"
+    "idf.portWin": "COM3",
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
 }
