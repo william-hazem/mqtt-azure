@@ -1,10 +1,34 @@
 # How to connect esp32 on azure iot hub using mqtt protocol
 
+> This template was tested with IDF 4.4.3 version
+
+## Table of Content
+* [ESP TLS](#esp-tls)
+* [Configure WiFi](#configure-wifi)
+* [Configure Azure Enviroment](#configure-azure-enviroment)
+* [Getting SaS Token](#how-generate-sas-token-using-vscode-plugin)
+
+
+## Esp TLS
+
+this project depends on [cryptoauthlib](https://github.com/espressif/esp-cryptoauthlib) component that already is included inside this repo as part of source code , you can check a newer version on it source or add it.
+
+### Configuring ESP-TLS
+run menuconfig `idf.py menuconfig` select component config > ESP-TLS.
+- Enable Secure Element
+
+if not have a server certificate or don't want to configure one, enable the followings options
+- Enable: Allow potentially insecure options (if you don't want to configure a server certificate)
+- Enable: Skip server certificate
+
+go to component config > mbedTLS
+- Enable Hardware ECDSA sign acceleration when using ATECC608A
+- Enable Hardware ECDSA verify acceleration when using ATECC608A
 ## Configure WiFi
 
 * WiFi SSID          [main](main/main.c)             
 * WiFi Password      [main](main/main.c)             
-* WiFi authmode      [wifi](main/wifi.c)(default: WPA2_PSK,line 100)
+* WiFi authmode      [wifi](main/wifi.c) (default: WPA2_PSK,line 100)
 
 ## Configure Azure Enviroment
 
